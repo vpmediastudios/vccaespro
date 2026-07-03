@@ -3,169 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aesthetic Attendance Portal</title>
+    <title>Studio Logs | Aesthetic Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style> ::-webkit-scrollbar { display: none; } </style>
 </head>
-<body class="bg-slate-50 font-sans h-screen flex flex-col antialiased">
-
-    <!-- Security Check -->
+<body class="bg-slate-50 font-sans h-screen flex flex-col antialiased select-none">
     <script>
         const session = JSON.parse(localStorage.getItem('sessionUser'));
-        const now = new Date().getTime();
-        if (!session || now > session.sessionExpiry || session.role !== 'Aesthetic') {
-            alert("Session timeout or invalid access.");
-            window.location.href = 'index.html';
-        }
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec'; // PASTE YOUR SCRIPT WEB APP URL HERE
+        if (!session || new Date().getTime() > session.sessionExpiry || session.role !== 'Aesthetic') window.location.href = 'index.html';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec';
     </script>
 
-    <!-- Header UI -->
     <header class="bg-purple-700 text-white p-4 shadow-md flex justify-between items-center sticky top-0 z-10">
         <div>
-            <h1 id="subjectTitle" class="text-lg font-bold tracking-wide">Aesthetic Portal</h1>
-            <p class="text-xs text-purple-200">Real-Time Room Validation</p>
+            <h1 id="subjectTitle" class="text-base font-black uppercase tracking-wide">Studio Room</h1>
+            <p class="text-[10px] uppercase font-bold text-purple-200">Aesthetic Verification Node</p>
         </div>
-        <button onclick="logout()" class="text-sm bg-purple-800 hover:bg-purple-900 px-3 py-1.5 rounded-lg transition-colors">Logout</button>
+        <button onclick="localStorage.removeItem('sessionUser'); window.location.href='index.html';" class="text-xs font-bold bg-purple-800 px-3 py-2 rounded-xl">Sign Out</button>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-1 overflow-y-auto p-4 pb-24 max-w-md mx-auto w-full">
-        
-        <!-- Class Selector Dropdown Component -->
-        <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-            <label class="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Target Classroom</label>
-            <select id="classSelector" onchange="fetchClassRoster()" class="w-full bg-slate-100 border-none p-3 rounded-lg text-gray-800 font-semibold focus:ring-2 focus:ring-purple-500 outline-none">
-                <option value="">-- Choose Class Division --</option>
-                <optgroup label="Grade 10">
-                    <option value="G10-A">G10 - A</option><option value="G10-B">G10 - B</option><option value="G10-C">G10 - C</option>
-                    <option value="G10-D">G10 - D</option><option value="G10-E">G10 - E</option><option value="G10-F">G10 - F</option>
-                </optgroup>
-                <optgroup label="Grade 11">
-                    <option value="G11-A">G11 - A</option><option value="G11-B">G11 - B</option><option value="G11-C">G11 - C</option>
-                    <option value="G11-D">G11 - D</option><option value="G11-E">G11 - E</option><option value="G11-F">G11 - F</option>
-                </optgroup>
+        <div class="mb-4 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+            <label class="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Query Targeting Classroom</label>
+            <select id="classSelector" onchange="fetchClassRoster()" class="w-full bg-slate-100 p-3 rounded-xl text-slate-800 font-bold focus:ring-2 focus:ring-purple-500 outline-none text-sm">
+                <option value="">-- Select Division Section --</option>
+                <optgroup label="Grade 10"><option value="G10-A">G10 - A</option><option value="G10-B">G10 - B</option><option value="G10-C">G10 - C</option><option value="G10-D">G10 - D</option><option value="G10-E">G10 - E</option><option value="G10-F">G10 - F</option></optgroup>
+                <optgroup label="Grade 11"><option value="G11-A">G11 - A</option><option value="G11-B">G11 - B</option><option value="G11-C">G11 - C</option><option value="G11-D">G11 - D</option><option value="G11-E">G11 - E</option><option value="G11-F">G11 - F</option></optgroup>
             </select>
         </div>
-
-        <!-- Student Attendance Target Elements -->
-        <form id="aestheticForm">
-            <div id="rosterWrapper" class="space-y-3">
-                <div class="text-center py-12 text-sm text-gray-400">Select a target classroom to query matching records.</div>
-            </div>
-        </form>
+        <form id="aestheticForm"><div id="rosterWrapper" class="space-y-3"><div class="text-center py-12 text-xs text-slate-400 font-bold uppercase tracking-wider">Select division section to list checked profiles.</div></div></form>
     </main>
 
-    <!-- Persistent Bottom Submission Module -->
-    <div class="fixed bottom-0 w-full bg-white border-t border-slate-100 p-4 max-w-md left-1/2 transform -translate-x-1/2">
-        <button form="aestheticForm" type="submit" id="lockBtn" disabled class="w-full bg-purple-600 opacity-50 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all active:scale-95 text-lg">
-            Lock Laboratory Attendance
-        </button>
+    <div class="fixed bottom-0 w-full bg-white border-t border-slate-100 p-4 max-w-md left-1/2 transform -translate-x-1/2 z-30">
+        <button form="aestheticForm" type="submit" id="lockBtn" disabled class="w-full bg-purple-700 opacity-40 text-white font-extrabold py-3.5 rounded-xl text-sm uppercase tracking-wider shadow-lg">Synchronize Studio Records</button>
     </div>
 
     <script>
-        document.getElementById('subjectTitle').innerText = `${session.assignedSubject} Room`;
-
-        function logout() {
-            localStorage.removeItem('sessionUser');
-            window.location.href = 'index.html';
-        }
-
+        document.getElementById('subjectTitle').innerText = `${session.assignedSubject} Suite`;
         async function fetchClassRoster() {
-            const className = document.getElementById('classSelector').value;
-            const container = document.getElementById('rosterWrapper');
-            const submitBtn = document.getElementById('lockBtn');
-            
-            if (!className) {
-                container.innerHTML = `<div class="text-center py-12 text-sm text-gray-400">Select a target classroom to query matching records.</div>`;
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-50');
-                return;
-            }
-
-            container.innerHTML = `<div class="text-center py-12 text-sm text-gray-400 animate-pulse">Scanning class rolls for present ${session.assignedSubject} students...</div>`;
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'getAestheticStudents',
-                        className: className,
-                        subject: session.assignedSubject
-                    })
+            const cls = document.getElementById('classSelector').value; const wrapper = document.getElementById('rosterWrapper'); const btn = document.getElementById('lockBtn');
+            if(!cls) { btn.disabled = true; btn.classList.add('opacity-40'); return; }
+            wrapper.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 animate-pulse font-bold">CROSS-REFERENCING LIVE SCHOOL DAILY ATTENDANCE ENTRIES...</div>`;
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getAestheticStudents', className: cls, subject: session.assignedSubject }) });
+            const data = await res.json();
+            if (data.success) {
+                wrapper.innerHTML = '';
+                if(data.students.length === 0) { wrapper.innerHTML = `<div class="text-center py-6 text-xs font-bold text-amber-600 bg-amber-50 p-4 rounded-xl">No active, present students from ${cls} configured for ${session.assignedSubject} today.</div>`; btn.disabled = true; btn.classList.add('opacity-40'); return; }
+                btn.disabled = false; btn.classList.remove('opacity-40');
+                data.students.forEach(s => {
+                    wrapper.innerHTML += `
+                        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
+                            <div><h4 class="font-black text-slate-800 text-sm tracking-tight">${s.name}</h4><p class="text-[10px] text-slate-400 font-bold mt-0.5">ID: ${s.id}</p></div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="aes_${s.id}" value="Present" class="sr-only peer" checked>
+                                <div class="w-12 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>`;
                 });
-                const data = await res.json();
-
-                if (data.success) {
-                    container.innerHTML = '';
-                    if (data.students.length === 0) {
-                        container.innerHTML = `<div class="text-center py-8 text-sm text-amber-600 bg-amber-50 p-4 rounded-lg">No active, present students found in ${className} for ${session.assignedSubject} today.</div>`;
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-50');
-                        return;
-                    }
-
-                    submitBtn.disabled = false;
-                    submitBtn.classList.remove('opacity-50');
-
-                    data.students.forEach(student => {
-                        container.innerHTML += `
-                            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-between">
-                                <div>
-                                    <h4 class="font-bold text-slate-800">${student.name}</h4>
-                                    <p class="text-xs text-slate-400">UID: ${student.id}</p>
-                                </div>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="aes_${student.id}" value="Present" class="sr-only peer" checked>
-                                    <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
-                                </label>
-                            </div>
-                        `;
-                    });
-                }
-            } catch(e) {
-                container.innerHTML = `<div class="text-center py-8 text-sm text-red-500">Failed structural parse check. Try reloading.</div>`;
             }
         }
-
         document.getElementById('aestheticForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('lockBtn');
-            btn.innerText = 'Syncing...';
-            btn.disabled = true;
-
-            const targetClass = document.getElementById('classSelector').value;
-            const inputs = e.target.querySelectorAll('input[type="checkbox"]');
-            let records = [];
-
-            inputs.forEach(input => {
-                let sId = input.name.split('_')[1];
-                records.push({
-                    studentId: sId,
-                    status: input.checked ? 'Present' : 'Absent'
-                });
-            });
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'submitAestheticAttendance', records: records })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    btn.innerText = 'Successfully Synchronized!';
-                    btn.classList.replace('bg-purple-600', 'bg-emerald-600');
-                    setTimeout(() => {
-                        btn.innerText = 'Lock Laboratory Attendance';
-                        btn.classList.replace('bg-emerald-600', 'bg-purple-600');
-                        btn.disabled = false;
-                    }, 2500);
-                }
-            } catch (err) {
-                alert('Database drop down failure.');
-                btn.innerText = 'Lock Laboratory Attendance';
-                btn.disabled = false;
-            }
+            e.preventDefault(); const btn = document.getElementById('lockBtn'); btn.innerText = 'Locking...'; btn.disabled = true;
+            let records = []; e.target.querySelectorAll('input[type="checkbox"]').forEach(input => { records.push({ studentId: input.name.split('_')[1], status: input.checked ? 'Present' : 'Absent' }); });
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'submitAestheticAttendance', records: records }) });
+            const data = await res.json(); if(data.success) { btn.innerText = 'Synchronized Successfully! ✓'; btn.classList.replace('bg-purple-700', 'bg-emerald-600'); setTimeout(() => { btn.innerText = 'Synchronize Studio Records'; btn.classList.replace('bg-emerald-600', 'bg-purple-700'); btn.disabled = false; }, 2000); }
         });
     </script>
 </body>
