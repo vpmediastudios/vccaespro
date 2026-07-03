@@ -3,178 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Empire Control</title>
+    <title>Control Console | Supreme Administration</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 font-sans flex h-screen overflow-hidden">
-
+<body class="bg-slate-50 font-sans flex h-screen overflow-hidden select-none">
     <script>
         const session = JSON.parse(localStorage.getItem('sessionUser'));
-        const now = new Date().getTime();
-        if (!session || now > session.sessionExpiry || session.role !== 'Admin') {
-            alert("Unauthorized or Session Expired. Please log in.");
-            window.location.href = 'index.html';
-        }
-        // YOUR WEB APP URL GOES HERE
+        if (!session || new Date().getTime() > session.sessionExpiry || session.role !== 'Admin') window.location.href = 'index.html';
         const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec';
     </script>
 
-    <aside class="w-64 bg-gray-900 text-white flex flex-col h-full shadow-2xl">
-        <div class="p-6 text-center border-b border-gray-800">
-            <h2 class="text-2xl font-bold tracking-wider text-blue-400">EMPIRE</h2>
-            <p class="text-xs text-gray-400 mt-1">Admin Console</p>
+    <aside class="w-64 bg-slate-900 text-white flex flex-col h-full shadow-2xl z-20">
+        <div class="p-6 text-center border-b border-slate-800">
+            <h2 class="text-xl font-black tracking-widest text-blue-400 uppercase">Empire Core</h2>
+            <p class="text-[10px] uppercase font-bold tracking-wider text-slate-500 mt-1">Ultimate Control Node</p>
         </div>
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="#" class="block px-4 py-3 bg-blue-600 rounded-lg text-sm font-medium transition-colors">Manage Users</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">Manage Students</a>
-            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">System Config</a>
+        <nav class="flex-1 px-4 py-6 space-y-1.5">
+            <button id="btn_usersTab" onclick="switchTab('usersTab')" class="w-full text-left px-4 py-3 bg-blue-600 rounded-xl text-xs font-bold uppercase tracking-wider transition-all">Manage Teachers</button>
+            <button id="btn_studentsTab" onclick="switchTab('studentsTab')" class="w-full text-left px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all">Manage Students</button>
+            <button id="btn_configTab" onclick="switchTab('configTab')" class="w-full text-left px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all">System Config</button>
         </nav>
-        <div class="p-4 border-t border-gray-800">
-            <button onclick="logout()" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-bold transition-colors">Logout</button>
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="localStorage.removeItem('sessionUser'); window.location.href='index.html';" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg transition-all">Sign Out Admin</button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col h-full overflow-hidden">
         
-        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-800">User Management (Teachers)</h1>
-            <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
-                + Add New User
-            </button>
-        </header>
-
-        <div class="flex-1 p-8 overflow-auto">
-            <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class/Subject</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody" class="bg-white divide-y divide-gray-200">
-                        <tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Loading users...</td></tr>
-                    </tbody>
-                </table>
+        <section id="usersTab" class="tab-content flex flex-col h-full animate-fade-in">
+            <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-10">
+                <h1 class="text-base font-black text-slate-800 uppercase tracking-wide">Teacher Management Workspace</h1>
+                <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-all">+ Add New Staff</button>
+            </header>
+            <div class="flex-1 p-8 overflow-auto">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-slate-50/70">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">UID</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Username</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Role Matrix</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Allocated Field</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section id="studentsTab" class="tab-content hidden flex flex-col h-full animate-fade-in">
+            <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-10">
+                <h1 class="text-base font-black text-slate-800 uppercase tracking-wide">Student Database Control</h1>
+                <button onclick="document.getElementById('addStudentModal').classList.remove('hidden')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-all">+ Register Student</button>
+            </header>
+            <div class="flex-1 p-8 overflow-auto">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-slate-50/70">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">StudentID</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Student Name</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Grade Allocation</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Aesthetic Focus</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Operations</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="configTab" class="tab-content hidden flex flex-col h-full animate-fade-in">
+            <header class="bg-white shadow-sm px-8 py-4 z-10">
+                <h1 class="text-base font-black text-slate-800 uppercase tracking-wide">System Framework Parameters</h1>
+            </header>
+            <div class="p-8 max-w-md">
+                <form id="configForm" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wide mb-2">Inject Dynamic Extension Node</h3>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Structure Tag Class</label>
+                        <input type="text" id="cfgGrade" placeholder="e.g. Grade 12 or Buddhism" required class="w-full mt-1 border border-slate-200 p-2.5 bg-slate-50 rounded-xl font-semibold text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Mapping Code Value</label>
+                        <input type="text" id="cfgSection" placeholder="e.g. G12-A" required class="w-full mt-1 border border-slate-200 p-2.5 bg-slate-50 rounded-xl font-semibold text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-all">Initialize Configuration Component</button>
+                </form>
+            </div>
+        </section>
     </main>
 
-    <div id="addUserModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4">Add New User</h3>
+    <div id="addUserModal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-100">
+            <h3 class="text-base font-black text-slate-900 uppercase tracking-tight mb-4">Add Teacher Node</h3>
             <form id="addUserForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" id="newUsername" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Username ID</label>
+                    <input type="text" id="newUsername" required class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="text" id="newPassword" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Security Access Password</label>
+                    <input type="text" id="newPassword" required class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Role</label>
-                    <select id="newRole" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Portal Role Domain Mapping</label>
+                    <select id="newRole" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800" onchange="toggleFormFields(this.value)">
                         <option value="Class">Class Teacher</option>
-                        <option value="Aesthetic">Aesthetic Teacher</option>
-                        <option value="Admin">Admin</option>
+                        <option value="Aesthetic">Aesthetic Room Instructor</option>
                     </select>
                 </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="document.getElementById('addUserModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save User</button>
+                <div id="classFieldContainer">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Locked Class Domain Division</label>
+                    <input type="text" id="newAssignedClass" placeholder="e.g. G10-E" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                </div>
+                <div id="subjectFieldContainer" class="hidden">
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Allocated Studio Subject Focus</label>
+                    <select id="newAssignedSubject" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                        <option value="W-Music">Western Music</option><option value="E-Music">Eastern Music</option>
+                        <option value="Drama">Drama</option><option value="Dancing">Dancing</option>
+                        <option value="E-Literature">English Literature</option><option value="S-Literature">Sinhala Literature</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-4 border-t border-slate-50">
+                    <button type="button" onclick="document.getElementById('addUserModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 rounded-xl hover:bg-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-blue-600 rounded-xl hover:bg-blue-700">Save Node</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="addStudentModal" class="hidden fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-slate-100">
+            <h3 class="text-base font-black text-slate-900 uppercase tracking-tight mb-4">Add Student Record</h3>
+            <form id="addStudentForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Full Legal Name</label>
+                    <input type="text" id="stdName" required class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Grade Level</label>
+                        <select id="stdGrade" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                            <option value="Grade 10">Grade 10</option><option value="Grade 11">Grade 11</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Class Track</label>
+                        <input type="text" id="stdClass" placeholder="e.g. G10-A" required class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Aesthetic Matrix Mapping</label>
+                    <select id="stdAesthetic" class="mt-1 block w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800">
+                        <option value="W-Music">Western Music</option><option value="E-Music">Eastern Music</option>
+                        <option value="Drama">Drama</option><option value="Dancing">Dancing</option>
+                        <option value="E-Literature">English Literature</option><option value="S-Literature">Sinhala Literature</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-4 border-t border-slate-50">
+                    <button type="button" onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-100 rounded-xl hover:bg-slate-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-emerald-600 rounded-xl hover:bg-emerald-700">Commit Student</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function logout() {
-            localStorage.removeItem('sessionUser');
-            window.location.href = 'index.html';
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.replace('bg-blue-600', 'hover:bg-slate-800'));
+            document.getElementById(tabId).classList.remove('hidden');
+            if(tabId === 'usersTab') loadUsers();
+            if(tabId === 'studentsTab') loadStudentsAdmin();
         }
 
-        // Fetch and display users on load
+        function toggleFormFields(role) {
+            document.getElementById('classFieldContainer').classList.toggle('hidden', role !== 'Class');
+            document.getElementById('subjectFieldContainer').classList.toggle('hidden', role !== 'Aesthetic');
+        }
+
         async function loadUsers() {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getUsers' })
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getUsers' }) });
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('userTableBody'); tbody.innerHTML = '';
+                data.users.forEach(user => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-xs font-bold text-slate-900">${user.id}</td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-600">${user.username}</td>
+                            <td class="px-6 py-4 text-xs"><span class="bg-blue-50 text-blue-700 text-[10px] px-2 py-1 rounded-md font-black uppercase tracking-wider border border-blue-100">${user.role}</span></td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-500">${user.assignedClass !== '-' ? user.assignedClass : user.assignedSubject}</td>
+                            <td class="px-6 py-4 text-xs">
+                                <button onclick="promptCredentials('${user.id}')" class="text-blue-600 font-bold mr-3 hover:underline">Edit Auth</button>
+                                <button onclick="deleteRow('user', '${user.id}')" class="text-red-500 font-bold hover:underline">Terminate</button>
+                            </td>
+                        </tr>`;
                 });
-                const data = await response.json();
-                
-                if (data.success) {
-                    const tbody = document.getElementById('userTableBody');
-                    tbody.innerHTML = ''; // Clear loading text
-                    
-                    data.users.forEach(user => {
-                        tbody.innerHTML += `
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${user.username}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${user.role}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.assignedClass !== '-' ? user.assignedClass : user.assignedSubject}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
-                                    <button class="text-red-600 hover:text-red-900">Delete</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching users:', error);
             }
         }
 
-        // Handle Add User Form Submission
+        async function loadStudentsAdmin() {
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'getStudentsAdmin' }) });
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
+                data.students.forEach(s => {
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 text-xs font-bold text-slate-900">${s.id}</td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-700">${s.name}</td>
+                            <td class="px-6 py-4 text-xs font-semibold text-slate-500">${s.grade} (${s.class})</td>
+                            <td class="px-6 py-4 text-xs font-bold text-purple-600">${s.subject}</td>
+                            <td class="px-6 py-4 text-xs">
+                                <button onclick="deleteRow('student', '${s.id}')" class="text-red-500 font-bold hover:underline">Remove</button>
+                            </td>
+                        </tr>`;
+                });
+            }
+        }
+
+        async function deleteRow(type, id) {
+            if (confirm(`Confirm erasure of ${type} database element?`)) {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteEntity', type: type, id: id }) });
+                const data = await res.json();
+                if (data.success) { type === 'user' ? loadUsers() : loadStudentsAdmin(); }
+            }
+        }
+
+        async function promptCredentials(id) {
+            let u = prompt("Override Username identifier String:");
+            let p = prompt("Override Account Security Password Matrix:");
+            if (u || p) {
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'updateUserCredentials', userId: id, newUsername: u, newPassword: p }) });
+                const data = await res.json(); if (data.success) loadUsers();
+            }
+        }
+
         document.getElementById('addUserForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = 'Saving...';
-            btn.disabled = true;
-
-            const payload = {
-                action: 'addUser',
-                userData: {
-                    username: document.getElementById('newUsername').value,
-                    password: document.getElementById('newPassword').value,
-                    role: document.getElementById('newRole').value,
-                    assignedClass: '', // You can add logic to show/hide these inputs based on role selection
-                    assignedSubject: '' 
-                }
-            };
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('User added successfully!');
-                    document.getElementById('addUserModal').classList.add('hidden');
-                    e.target.reset(); // Clear form
-                    loadUsers(); // Reload table
-                } else {
-                    alert('Error adding user');
-                }
-            } catch (error) {
-                alert('Network error');
-            } finally {
-                btn.innerText = 'Save User';
-                btn.disabled = false;
-            }
+            const payload = { action: 'addUser', userData: { username: document.getElementById('newUsername').value, password: document.getElementById('newPassword').value, role: document.getElementById('newRole').value, assignedClass: document.getElementById('newAssignedClass').value, assignedSubject: document.getElementById('newAssignedSubject').value } };
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const data = await res.json(); if(data.success) { document.getElementById('addUserModal').classList.add('hidden'); e.target.reset(); loadUsers(); }
         });
 
-        // Initialize dashboard
-        loadUsers();
+        document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = { action: 'addStudentAdmin', studentData: { name: document.getElementById('stdName').value, grade: document.getElementById('stdGrade').value, classDivision: document.getElementById('stdClass').value, aestheticFocus: document.getElementById('stdAesthetic').value } };
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) });
+            const data = await res.json(); if(data.success) { document.getElementById('addStudentModal').classList.add('hidden'); e.target.reset(); loadStudentsAdmin(); }
+        });
+
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addNewClassConfig', grade: document.getElementById('cfgGrade').value, section: document.getElementById('cfgSection').value }) });
+            const data = await res.json(); if(data.success) { alert('Dynamic component saved.'); e.target.reset(); }
+        });
+
+        window.onload = loadUsers;
     </script>
 </body>
 </html>
