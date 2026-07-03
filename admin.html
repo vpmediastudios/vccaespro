@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Empire Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans flex h-screen overflow-hidden">
+
+    <script>
+        const session = JSON.parse(localStorage.getItem('sessionUser'));
+        const now = new Date().getTime();
+        if (!session || now > session.sessionExpiry || session.role !== 'Admin') {
+            alert("Unauthorized or Session Expired. Please log in.");
+            window.location.href = 'index.html';
+        }
+        // YOUR WEB APP URL GOES HERE
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec';
+    </script>
+
+    <aside class="w-64 bg-gray-900 text-white flex flex-col h-full shadow-2xl">
+        <div class="p-6 text-center border-b border-gray-800">
+            <h2 class="text-2xl font-bold tracking-wider text-blue-400">EMPIRE</h2>
+            <p class="text-xs text-gray-400 mt-1">Admin Console</p>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="#" class="block px-4 py-3 bg-blue-600 rounded-lg text-sm font-medium transition-colors">Manage Users</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">Manage Students</a>
+            <a href="#" class="block px-4 py-3 hover:bg-gray-800 rounded-lg text-sm font-medium transition-colors">System Config</a>
+        </nav>
+        <div class="p-4 border-t border-gray-800">
+            <button onclick="logout()" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 rounded-lg text-sm font-bold transition-colors">Logout</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-semibold text-gray-800">User Management (Teachers)</h1>
+            <button onclick="document.getElementById('addUserModal').classList.remove('hidden')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors">
+                + Add New User
+            </button>
+        </header>
+
+        <div class="flex-1 p-8 overflow-auto">
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Class/Subject</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="addUserModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Add New User</h3>
+            <form id="addUserForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" id="newUsername" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="text" id="newPassword" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                    <select id="newRole" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                        <option value="Class">Class Teacher</option>
+                        <option value="Aesthetic">Aesthetic Teacher</option>
+                        <option value="Admin">Admin</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="document.getElementById('addUserModal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('sessionUser');
+            window.location.href = 'index.html';
+        }
+
+        // Fetch and display users on load
+        async function loadUsers() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getUsers' })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('userTableBody');
+                    tbody.innerHTML = ''; // Clear loading text
+                    
+                    data.users.forEach(user => {
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${user.username}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${user.role}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.assignedClass !== '-' ? user.assignedClass : user.assignedSubject}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <button class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                    <button class="text-red-600 hover:text-red-900">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        // Handle Add User Form Submission
+        document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = 'Saving...';
+            btn.disabled = true;
+
+            const payload = {
+                action: 'addUser',
+                userData: {
+                    username: document.getElementById('newUsername').value,
+                    password: document.getElementById('newPassword').value,
+                    role: document.getElementById('newRole').value,
+                    assignedClass: '', // You can add logic to show/hide these inputs based on role selection
+                    assignedSubject: '' 
+                }
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('User added successfully!');
+                    document.getElementById('addUserModal').classList.add('hidden');
+                    e.target.reset(); // Clear form
+                    loadUsers(); // Reload table
+                } else {
+                    alert('Error adding user');
+                }
+            } catch (error) {
+                alert('Network error');
+            } finally {
+                btn.innerText = 'Save User';
+                btn.disabled = false;
+            }
+        });
+
+        // Initialize dashboard
+        loadUsers();
+    </script>
+</body>
+</html>

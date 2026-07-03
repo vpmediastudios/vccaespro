@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Empire | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-8 space-y-8">
+        
+        <div class="text-center">
+            <img src="logo.png" alt="System Logo" class="mx-auto h-20 w-auto mb-4 rounded-lg shadow-sm" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+            <h2 class="text-3xl font-extrabold text-gray-900">Welcome Back</h2>
+            <p class="text-sm text-gray-500 mt-2">Sign in to access your dashboard</p>
+        </div>
+
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" id="password" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+            </div>
+
+            <button type="submit" id="loginBtn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                Sign In
+            </button>
+            
+            <p id="errorMessage" class="text-red-500 text-sm text-center hidden mt-2"></p>
+        </form>
+    </div>
+
+    <script>
+        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            // UI Loading state
+            btn.innerText = 'Authenticating...';
+            btn.disabled = true;
+            errorMsg.classList.add('hidden');
+
+            const payload = {
+                action: 'login',
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    // Save session data (including the 7-hour expiry time)
+                    localStorage.setItem('sessionUser', JSON.stringify(data.user));
+                    
+                    // Route to correct dashboard
+                    if (data.user.role === 'Admin') window.location.href = 'admin.html';
+                    else if (data.user.role === 'Class') window.location.href = 'teacher.html';
+                    else if (data.user.role === 'Aesthetic') window.location.href = 'aesthetic.html';
+                } else {
+                    errorMsg.innerText = data.message;
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorMsg.innerText = "Network error. Please try again.";
+                errorMsg.classList.remove('hidden');
+            } finally {
+                btn.innerText = 'Sign In';
+                btn.disabled = false;
+            }
+        });
+
+        // Auto-logout check on page load
+        window.onload = () => {
+            const session = JSON.parse(localStorage.getItem('sessionUser'));
+            if (session) {
+                const now = new Date().getTime();
+                if (now > session.sessionExpiry) {
+                    localStorage.removeItem('sessionUser'); // Clear expired session
+                    alert("Session expired after 7 hours. Please log in again.");
+                }
+            }
+        };
+    </script>
+</body>
+</html>
