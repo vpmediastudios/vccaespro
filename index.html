@@ -3,99 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Empire | Login</title>
+    <title>Empire Gateway | Authentication</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
-
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden p-8 space-y-8">
-        
+<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4 select-none">
+    <div class="max-w-md w-full bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 space-y-6 border border-slate-100">
         <div class="text-center">
-            <img src="logo.png" alt="System Logo" class="mx-auto h-20 w-auto mb-4 rounded-lg shadow-sm" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
-            <h2 class="text-3xl font-extrabold text-gray-900">Welcome Back</h2>
-            <p class="text-sm text-gray-500 mt-2">Sign in to access your dashboard</p>
+            <img src="asset/logo.png" alt="Empire Logo" class="mx-auto h-20 w-auto rounded-xl object-contain shadow-sm" onerror="this.src='https://via.placeholder.com/150?text=Logo'">
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight mt-4">Unified Portal Gate</h2>
+            <p class="text-xs text-slate-400 mt-1">Provide credentials to enter tracking dashboards</p>
         </div>
-
-        <form id="loginForm" class="space-y-6">
+        <form id="loginForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700">Username</label>
-                <input type="text" id="username" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Username ID</label>
+                <input type="text" id="username" required class="mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold text-slate-800">
             </div>
-
             <div>
-                <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" id="password" required class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500">Password Encryption</label>
+                <input type="password" id="password" required class="mt-1 block w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-semibold text-slate-800">
             </div>
-
-            <button type="submit" id="loginBtn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                Sign In
+            <button type="submit" id="loginBtn" class="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl text-sm tracking-wide shadow-lg hover:bg-slate-800 active:scale-[0.98] transition-all">
+                Enter Portal System
             </button>
-            
-            <p id="errorMessage" class="text-red-500 text-sm text-center hidden mt-2"></p>
+            <p id="errorMessage" class="text-red-500 text-xs font-bold text-center hidden"></p>
         </form>
     </div>
-
     <script>
-        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
         const API_URL = 'https://script.google.com/macros/s/AKfycbwS2HfNIHQlA_3Y_Z208Z2fPJIkg4STpCITvr1rDXsllQNwt-7NlooKhFxpsNnkZDelJw/exec';
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = document.getElementById('loginBtn');
-            const errorMsg = document.getElementById('errorMessage');
-            
-            // UI Loading state
-            btn.innerText = 'Authenticating...';
-            btn.disabled = true;
-            errorMsg.classList.add('hidden');
-
-            const payload = {
-                action: 'login',
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value
-            };
-
+            e.preventDefault(); const btn = document.getElementById('loginBtn'); const errorMsg = document.getElementById('errorMessage');
+            btn.innerText = 'Validating Authorization Layers...'; btn.disabled = true; errorMsg.classList.add('hidden');
             try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
-                
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'login', username: document.getElementById('username').value, password: document.getElementById('password').value }) });
                 const data = await response.json();
-
                 if (data.success) {
-                    // Save session data (including the 7-hour expiry time)
                     localStorage.setItem('sessionUser', JSON.stringify(data.user));
-                    
-                    // Route to correct dashboard
                     if (data.user.role === 'Admin') window.location.href = 'admin.html';
                     else if (data.user.role === 'Class') window.location.href = 'teacher.html';
                     else if (data.user.role === 'Aesthetic') window.location.href = 'aesthetic.html';
-                } else {
-                    errorMsg.innerText = data.message;
-                    errorMsg.classList.remove('hidden');
-                }
-            } catch (error) {
-                errorMsg.innerText = "Network error. Please try again.";
-                errorMsg.classList.remove('hidden');
-            } finally {
-                btn.innerText = 'Sign In';
-                btn.disabled = false;
-            }
+                } else { errorMsg.innerText = data.message; errorMsg.classList.remove('hidden'); }
+            } catch (error) { errorMsg.innerText = "Network Gateway failure."; errorMsg.classList.remove('hidden'); }
+            finally { btn.innerText = 'Enter Portal System'; btn.disabled = false; }
         });
-
-        // Auto-logout check on page load
-        window.onload = () => {
-            const session = JSON.parse(localStorage.getItem('sessionUser'));
-            if (session) {
-                const now = new Date().getTime();
-                if (now > session.sessionExpiry) {
-                    localStorage.removeItem('sessionUser'); // Clear expired session
-                    alert("Session expired after 7 hours. Please log in again.");
-                }
-            }
-        };
     </script>
 </body>
 </html>
